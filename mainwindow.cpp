@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QtDebug>
+#include <QMessageBox>
 
 int MainWindow::x = 0;
 int MainWindow::y = 0;
@@ -21,13 +22,15 @@ MainWindow::~MainWindow()
 BOOL CALLBACK MainWindow::foreach_window(HWND hWnd, LPARAM lparam)
 {
     int length = GetWindowTextLength(hWnd);
-    char* buffer = new char[length + 1];
+    char* buffer = (char*)malloc(length +1);
     GetWindowTextA(hWnd, buffer, length + 1);
     QString windowTitle(buffer);
     if (windowTitle == winName)
     {
         SetWindowPos(hWnd, HWND_TOP, x, y, 0, 0, SWP_NOSIZE | SWP_NOOWNERZORDER);
     }
+    if(buffer) free(buffer);
+    return TRUE;
 }
 
 void MainWindow::on_MB_SET_clicked()
@@ -36,5 +39,6 @@ void MainWindow::on_MB_SET_clicked()
     y = ui->LE_Y->text().toInt();
     winName = ui->LE_WIN_NAME->text();
 
-    EnumWindows(foreach_window, NULL);
+    if (!winName.isEmpty())
+        EnumWindows(foreach_window, NULL);
 }
